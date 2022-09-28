@@ -16,7 +16,7 @@ import { useNavigate } from 'react-router-dom'
 import { stringCamelCase } from 'src/components/utilities/CippCamelCase'
 
 export default function CippActionsOffcanvas(props) {
-  const inputRef = useRef(null)
+  const inputRef = useRef('')
   const [genericGetRequest, getResults] = useLazyGenericGetRequestQuery()
   const [genericPostRequest, postResults] = useLazyGenericPostRequestQuery()
 
@@ -48,11 +48,12 @@ export default function CippActionsOffcanvas(props) {
           </div>
         ),
         title: 'Confirm',
-        onConfirm: () =>
+        onConfirm: () => [
           genericPostRequest({
             path: modalUrl,
-            values: { input: inputRef.current.value, ...modalBody },
+            values: { ...modalBody, ...{ input: inputRef.current.value } },
           }),
+        ],
       })
     }
   }
@@ -167,14 +168,18 @@ export default function CippActionsOffcanvas(props) {
       {postResults.isError && (
         <CCallout color="danger">Could not connect to API: {postResults.error.message}</CCallout>
       )}
-      {getResults.isSuccess && <CCallout color="info">{getResults.data?.Results}</CCallout>}
+      {getResults.isSuccess && (
+        <CCallout color={getResults.data?.colour ? getResults.data?.colour : 'info'}>
+          {getResults.data?.Results}
+        </CCallout>
+      )}
       {getResults.isError && (
         <CCallout color="danger">Could not connect to API: {getResults.error.message}</CCallout>
       )}
       <COffcanvasTitle>Extended Information</COffcanvasTitle>
       {extendedInfoContent}
       {<COffcanvasTitle>Actions</COffcanvasTitle>}
-      <CListGroup layout="vertical-md">
+      <CListGroup>
         {actionsContent}
         {actionsSelectorsContent}
       </CListGroup>
